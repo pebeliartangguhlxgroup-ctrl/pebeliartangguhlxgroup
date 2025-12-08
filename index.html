@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>𝐏𝐄𝐁𝐄𝐋𝐈𝐀𝐑 𝐓𝐀𝐍𝐆𝐆𝐔𝐇 𝐋𝐗𝐆𝐑𝐎𝐔𝐏</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #0a0f24;
+    color: #fff;
+    margin: 0;
+    padding: 20px;
+  }
+  h2 {
+    text-align: center;
+    color: #00eaff;
+    text-shadow: 0 0 10px #00eaff;
+  }
+  .container {
+    max-width: 600px;
+    margin: auto;
+    background: rgba(255,255,255,0.05);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 15px #00eaff;
+  }
+  label {
+    font-size: 14px;
+  }
+  input, select {
+    width: 100%;
+    padding: 10px;
+    margin: 6px 0 15px;
+    border-radius: 8px;
+    border: none;
+    background: #111827;
+    color: #00eaff;
+  }
+  button {
+    width: 100%;
+    padding: 12px;
+    background: #00eaff;
+    border: none;
+    border-radius: 10px;
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 0 10px #00eaff;
+  }
+  table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+  }
+  table, th, td {
+    border: 1px solid #00eaff;
+  }
+  th, td {
+    padding: 10px;
+    text-align: center;
+  }
+  .summary {
+    margin-top: 30px;
+    padding: 15px;
+    border: 1px solid #00eaff;
+    border-radius: 10px;
+  }
+  /* CSS untuk teks berjalan */
+  .scrolling-text {
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+  .scrolling-text p {
+    display: inline-block;
+    animation: scroll-left 10s linear infinite;
+    font-size: 20px;
+    color: #00eaff;
+    margin: 0;
+    padding: 0;
+  }
+  @keyframes scroll-left {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+</style>
+</head>
+<body>
+
+<h2>𝐏𝐄𝐁𝐄𝐋𝐈𝐀𝐑 𝐓𝐀𝐍𝐆𝐆𝐔𝐇 𝐋𝐗𝐆𝐑𝐎𝐔𝐏</h2>
+
+<!-- Teks Berjalan -->
+<div class="scrolling-text">
+  <p>𝐊𝐀𝐋𝐀𝐔 𝐌𝐄𝐍𝐀𝐍𝐆 𝐊𝐀𝐓𝐀𝐊𝐀𝐍 𝐌𝐄𝐍𝐀𝐍𝐆, 𝐊𝐀𝐋𝐀𝐔 𝐊𝐀𝐋𝐀𝐇 𝐊𝐀𝐓𝐀𝐊𝐀𝐍 𝐊𝐀𝐋𝐀𝐇.</p>
+</div>
+
+<div class="container">
+  <label>𝐍𝐀𝐌𝐀</label>
+  <input type="text" id="namaInput" placeholder="Masukkan nama" />
+
+  <label>𝐖𝐈𝐍/𝐋𝐎𝐒𝐄</label>
+  <select id="statusInput">
+    <option value="win">𝐖𝐈𝐍</option>
+    <option value="lose">𝐋𝐎𝐒𝐄</option>
+  </select>
+
+  <label>𝐉𝐔𝐌𝐋𝐀𝐇 𝐁𝐄𝐓</label>
+  <select id="betInput">
+    <option value="2000">2.000</option>
+    <option value="3000">3.000</option>
+    <option value="5000">5.000</option>
+    <option value="10000">10.000</option>
+  </select>
+
+  <button onclick="tambahData()">𝐓𝐚𝐦𝐛𝐚𝐡𝐤𝐚𝐧</button>
+
+  <table id="tabelData">
+    <thead>
+      <tr>
+        <th>𝐍𝐀𝐌𝐀</th>
+        <th>𝐒𝐓𝐀𝐓𝐔𝐒</th>
+        <th>𝐉𝐔𝐌𝐋𝐀𝐇 𝐁𝐄𝐓</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div class="summary" id="summaryList"></div>
+</div>
+
+<script>
+  const dataList = [];
+
+  function tambahData() {
+    const nama = document.getElementById('namaInput').value.trim();
+    const status = document.getElementById('statusInput').value;
+    const bet = parseInt(document.getElementById('betInput').value);
+
+    if (!nama) {
+      alert("Nama harus diisi!");
+      return;
+    }
+
+    dataList.push({ nama, status, bet });
+    updateTable();
+    updateSummary();
+  }
+
+  function updateTable() {
+    const tbody = document.querySelector('#tabelData tbody');
+    tbody.innerHTML = '';
+
+    dataList.forEach(d => {
+      const row = `<tr>
+        <td>${d.nama}</td>
+        <td>${d.status}</td>
+        <td>${d.bet.toLocaleString()}</td>
+      </tr>`;
+      tbody.innerHTML += row;
+    });
+  }
+
+  function updateSummary() {
+    const summary = {};
+
+    dataList.forEach(d => {
+      if (!summary[d.nama]) {
+        summary[d.nama] = { win: 0, lose: 0 };
+      }
+      summary[d.nama][d.status] += d.bet;
+    });
+
+    const summaryContainer = document.getElementById('summaryList');
+    summaryContainer.innerHTML = '<h3>Rangkuman</h3>';
+
+    Object.keys(summary).forEach(nama => {
+      const item = summary[nama];
+      summaryContainer.innerHTML += `
+        <p><strong>${nama}</strong><br>
+        Win: ${item.win.toLocaleString()}<br>
+        Lose: ${item.lose.toLocaleString()}</p>
+      `;
+    });
+  }
+</script>
+
+</body>
+</html>
