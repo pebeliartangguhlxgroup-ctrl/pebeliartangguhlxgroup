@@ -17,7 +17,7 @@
     color: #00eaff;
     text-shadow: 0 0 10px #00eaff;
   }
-  .container {
+  .container, .login-container {
     max-width: 600px;
     margin: auto;
     background: rgba(255,255,255,0.05);
@@ -48,6 +48,10 @@
     cursor: pointer;
     box-shadow: 0 0 10px #00eaff;
     margin-bottom: 10px;
+  }
+  button.logout {
+    background: red;
+    color: white;
   }
   table {
     width: 100%;
@@ -83,6 +87,7 @@
     0% { transform: translateX(100%); }
     100% { transform: translateX(-100%); }
   }
+  .hidden { display: none; }
 </style>
 </head>
 <body>
@@ -93,7 +98,21 @@
   <p>𝐊𝐚𝐥𝐚𝐮 𝐦𝐞𝐧𝐚𝐧𝐠 𝐤𝐚𝐭𝐚𝐤𝐚𝐧 𝐦𝐞𝐧𝐚𝐧𝐠. 𝐊𝐚𝐥𝐚𝐮 𝐤𝐚𝐥𝐚𝐡 𝐤𝐚𝐭𝐚𝐤𝐚𝐧 𝐤𝐚𝐥𝐚𝐡 𝐃𝐎𝐍𝐓𝐒 𝐅𝐀𝐋𝐒𝐄 𝐌𝐎𝐃𝐄𝐒𝐓𝐘.</p>
 </div>
 
-<div class="container">
+<!-- LOGIN FORM -->
+<div class="login-container" id="loginForm">
+  <h3>Login</h3>
+  <label>Email</label>
+  <input type="email" id="emailInput" placeholder="Masukkan email" />
+  <label>Password</label>
+  <input type="password" id="passwordInput" placeholder="Masukkan password" />
+  <button onclick="login()">Login</button>
+  <button onclick="register()">Register</button>
+</div>
+
+<!-- MAIN CONTAINER -->
+<div class="container hidden" id="mainContainer">
+  <button class="logout" onclick="logout()">Logout</button>
+
   <label>𝐍𝐀𝐌𝐀</label>
   <input type="text" id="namaInput" placeholder="Masukkan nama" />
 
@@ -134,6 +153,7 @@
 <!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
 <script>
 const firebaseConfig = {
@@ -149,10 +169,53 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
+const auth = firebase.auth();
 
 let dataList = [];
 
-// Load data realtime
+// ================= LOGIN =================
+function login() {
+  const email = document.getElementById('emailInput').value;
+  const password = document.getElementById('passwordInput').value;
+  if (!email || !password) return alert("Email dan password harus diisi!");
+
+  auth.signInWithEmailAndPassword(email, password)
+    .then(() => {
+      document.getElementById('loginForm').classList.add('hidden');
+      document.getElementById('mainContainer').classList.remove('hidden');
+    })
+    .catch(err => alert("Login gagal: " + err.message));
+}
+
+function register() {
+  const email = document.getElementById('emailInput').value;
+  const password = document.getElementById('passwordInput').value;
+  if (!email || !password) return alert("Email dan password harus diisi!");
+
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(() => alert("Registrasi berhasil, silakan login"))
+    .catch(err => alert("Registrasi gagal: " + err.message));
+}
+
+function logout() {
+  auth.signOut().then(() => {
+    document.getElementById('loginForm').classList.remove('hidden');
+    document.getElementById('mainContainer').classList.add('hidden');
+  });
+}
+
+// Auto-check login status
+auth.onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById('loginForm').classList.add('hidden');
+    document.getElementById('mainContainer').classList.remove('hidden');
+  } else {
+    document.getElementById('loginForm').classList.remove('hidden');
+    document.getElementById('mainContainer').classList.add('hidden');
+  }
+});
+
+// ================= DATA =================
 db.ref("betData").on("value", snapshot => {
   dataList = snapshot.val() || [];
   updateTable();
@@ -170,7 +233,7 @@ function tambahData() {
 
   let totalBet = bet;
   if (status === 'win') {
-      totalBet = bet * player; // Win dikalikan jumlah pemain
+      totalBet = bet * player;
   }
 
   dataList.push({ nama, status, bet: totalBet });
