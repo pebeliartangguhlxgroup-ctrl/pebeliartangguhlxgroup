@@ -47,6 +47,7 @@
     font-weight: bold;
     cursor: pointer;
     box-shadow: 0 0 10px #00eaff;
+    margin-bottom: 10px;
   }
   table {
     width: 100%;
@@ -66,12 +67,10 @@
     border: 1px solid #00eaff;
     border-radius: 10px;
   }
-  /* CSS untuk teks berjalan */
   .scrolling-text {
     width: 100%;
     white-space: nowrap;
     overflow: hidden;
-    box-sizing: border-box;
   }
   .scrolling-text p {
     display: inline-block;
@@ -79,7 +78,6 @@
     font-size: 20px;
     color: #00eaff;
     margin: 0;
-    padding: 0;
   }
   @keyframes scroll-left {
     0% { transform: translateX(100%); }
@@ -91,7 +89,6 @@
 
 <h2>𝐏𝐄𝐁𝐄𝐋𝐈𝐀𝐑 𝐓𝐀𝐍𝐆𝐆𝐔𝐇 𝐋𝐗𝐆𝐑𝐎𝐔𝐏</h2>
 
-<!-- Teks Berjalan -->
 <div class="scrolling-text">
   <p>𝐊𝐚𝐥𝐚𝐮 𝐦𝐞𝐧𝐚𝐧𝐠 𝐤𝐚𝐭𝐚𝐤𝐚𝐧 𝐦𝐞𝐧𝐚𝐧𝐠. 𝐊𝐚𝐥𝐚𝐮 𝐤𝐚𝐥𝐚𝐡 𝐤𝐚𝐭𝐚𝐤𝐚𝐧 𝐤𝐚𝐥𝐚𝐡 𝐃𝐎𝐍𝐓𝐒 𝐅𝐀𝐋𝐒𝐄 𝐌𝐎𝐃𝐄𝐒𝐓𝐘.</p>
 </div>
@@ -115,6 +112,7 @@
   </select>
 
   <button onclick="tambahData()">𝐓𝐚𝐦𝐛𝐚𝐡𝐤𝐚𝐧</button>
+  <button style="background:red;color:white" onclick="resetAll()">𝐑𝐄𝐒𝐄𝐓 𝐀𝐋𝐋</button>
 
   <table id="tabelData">
     <thead>
@@ -130,58 +128,77 @@
   <div class="summary" id="summaryList"></div>
 </div>
 
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
 <script>
-  const dataList = [];
+const firebaseConfig = {
+  apiKey: "AIzaSyBUaxogKMuYoweg45OIKcblH88arE_9HeQ",
+  authDomain: "pebeliartangguh.firebaseapp.com",
+  databaseURL: "https://pebeliartangguh-default-rtdb.firebaseio.com",
+  projectId: "pebeliartangguh",
+  storageBucket: "pebeliartangguh.firebasestorage.app",
+  messagingSenderId: "909335670060",
+  appId: "1:909335670060:web:739862acc9534f356ad089",
+  measurementId: "G-YCZYWHE7NS"
+};
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  let dataList = [];
+
+  // Load data realtime
+  db.ref("betData").on("value", snapshot => {
+    dataList = snapshot.val() || [];
+    updateTable();
+    updateSummary();
+  });
 
   function tambahData() {
     const nama = document.getElementById('namaInput').value.trim();
     const status = document.getElementById('statusInput').value;
     const bet = parseInt(document.getElementById('betInput').value);
 
-    if (!nama) {
-      alert("Nama harus diisi!");
-      return;
-    }
+    if (!nama) return alert("Nama harus diisi!");
 
     dataList.push({ nama, status, bet });
-    updateTable();
-    updateSummary();
+
+    db.ref("betData").set(dataList);
+  }
+
+  function resetAll() {
+    if (!confirm("Hapus semua data?")) return;
+    db.ref("betData").set([]);
   }
 
   function updateTable() {
     const tbody = document.querySelector('#tabelData tbody');
     tbody.innerHTML = '';
-
     dataList.forEach(d => {
-      const row = `<tr>
+      tbody.innerHTML += `<tr>
         <td>${d.nama}</td>
         <td>${d.status}</td>
         <td>${d.bet.toLocaleString()}</td>
       </tr>`;
-      tbody.innerHTML += row;
     });
   }
 
   function updateSummary() {
     const summary = {};
-
     dataList.forEach(d => {
-      if (!summary[d.nama]) {
-        summary[d.nama] = { win: 0, lose: 0 };
-      }
+      if (!summary[d.nama]) summary[d.nama] = { win: 0, lose: 0 };
       summary[d.nama][d.status] += d.bet;
     });
 
-    const summaryContainer = document.getElementById('summaryList');
-    summaryContainer.innerHTML = '<h3>Rangkuman</h3>';
+    const box = document.getElementById('summaryList');
+    box.innerHTML = '<h3>Rangkuman</h3>';
 
-    Object.keys(summary).forEach(nama => {
-      const item = summary[nama];
-      summaryContainer.innerHTML += `
-        <p><strong>${nama}</strong><br>
-        Win: ${item.win.toLocaleString()}<br>
-        Lose: ${item.lose.toLocaleString()}</p>
-      `;
+    Object.keys(summary).forEach(n => {
+      box.innerHTML += `<p><strong>${n}</strong><br>
+        Win: ${summary[n].win.toLocaleString()}<br>
+        Lose: ${summary[n].lose.toLocaleString()}</p>`;
     });
   }
 </script>
