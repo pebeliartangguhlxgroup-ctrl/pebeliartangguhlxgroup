@@ -111,6 +111,9 @@
     <option value="10000">10.000</option>
   </select>
 
+  <label>𝐉𝐔𝐌𝐋𝐀𝐇 𝐏𝐄𝐌𝐀𝐈𝐍</label>
+  <input type="number" id="playerInput" placeholder="Masukkan jumlah pemain" min="1" value="1" />
+
   <button onclick="tambahData()">𝐓𝐚𝐦𝐛𝐚𝐡𝐤𝐚𝐧</button>
   <button style="background:red;color:white" onclick="resetAll()">𝐑𝐄𝐒𝐄𝐓 𝐀𝐋𝐋</button>
 
@@ -144,63 +147,72 @@ const firebaseConfig = {
   measurementId: "G-YCZYWHE7NS"
 };
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-  let dataList = [];
+let dataList = [];
 
-  // Load data realtime
-  db.ref("betData").on("value", snapshot => {
-    dataList = snapshot.val() || [];
-    updateTable();
-    updateSummary();
+// Load data realtime
+db.ref("betData").on("value", snapshot => {
+  dataList = snapshot.val() || [];
+  updateTable();
+  updateSummary();
+});
+
+function tambahData() {
+  const nama = document.getElementById('namaInput').value.trim();
+  const status = document.getElementById('statusInput').value;
+  const bet = parseInt(document.getElementById('betInput').value);
+  const player = parseInt(document.getElementById('playerInput').value);
+
+  if (!nama) return alert("Nama harus diisi!");
+  if (!player || player < 1) return alert("Jumlah pemain minimal 1!");
+
+  let totalBet = bet;
+  if (status === 'win') {
+      totalBet = bet * player; // Win dikalikan jumlah pemain
+  }
+
+  dataList.push({ nama, status, bet: totalBet });
+
+  db.ref("betData").set(dataList);
+}
+
+function resetAll() {
+  if (!confirm("Hapus semua data?")) return;
+  db.ref("betData").set([]);
+}
+
+function updateTable() {
+  const tbody = document.querySelector('#tabelData tbody');
+  tbody.innerHTML = '';
+  dataList.forEach(d => {
+    tbody.innerHTML += `<tr>
+      <td>${d.nama}</td>
+      <td>${d.status}</td>
+      <td>${d.bet.toLocaleString()}</td>
+    </tr>`;
+  });
+}
+
+function updateSummary() {
+  const summary = {};
+  dataList.forEach(d => {
+    if (!summary[d.nama]) summary[d.nama] = { win: 0, lose: 0 };
+    summary[d.nama][d.status] += d.bet;
   });
 
-  function tambahData() {
-    const nama = document.getElementById('namaInput').value.trim();
-    const status = document.getElementById('statusInput').value;
-    const bet = parseInt(document.getElementById('betInput').value);
+  const box = document.getElementById('summaryList');
+  box.innerHTML = '<h3>Rangkuman</h3>';
 
-    if (!nama) return alert("Nama harus diisi!");
-
-    dataList.push({ nama, status, bet });
-
-    db.ref("betData").set(dataList);
-  }
-
-  function resetAll() {
-    if (!confirm("Hapus semua data?")) return;
-    db.ref("betData").set([]);
-  }
-
-  function updateTable() {
-    const tbody = document.querySelector('#tabelData tbody');
-    tbody.innerHTML = '';
-    dataList.forEach(d => {
-      tbody.innerHTML += `<tr>
-        <td>${d.nama}</td>
-        <td>${d.status}</td>
-        <td>${d.bet.toLocaleString()}</td>
-      </tr>`;
-    });
-  }
-
-  function updateSummary() {
-    const summary = {};
-    dataList.forEach(d => {
-      if (!summary[d.nama]) summary[d.nama] = { win: 0, lose: 0 };
-      summary[d.nama][d.status] += d.bet;
-    });
-
-    const box = document.getElementById('summaryList');
-    box.innerHTML = '<h3>Rangkuman</h3>';
-
-    Object.keys(summary).forEach(n => {
-      box.innerHTML += `<p><strong>${n}</strong><br>
-        Win: ${summary[n].win.toLocaleString()}<br>
-        Lose: ${summary[n].lose.toLocaleString()}</p>`;
-    });
-  }
+  Object.keys(summary).forEach(n => {
+    const totalBersih = summary[n].win - summary[n].lose;
+    box.innerHTML += `<p><strong>${n}</strong><br>
+      Win: ${summary[n].win.toLocaleString()}<br>
+      Lose: ${summary[n].lose.toLocaleString()}<br>
+      <strong>Total Bersih: ${totalBersih.toLocaleString()}</strong></p>`;
+  });
+}
 </script>
 
 </body>
