@@ -96,6 +96,51 @@
     border-radius: 10px;
   }
 
+  /* MODAL STYLING */
+  #detailModal {
+    display: none;
+    position: fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background: rgba(0,0,0,0.8);
+    justify-content:center;
+    align-items:center;
+    z-index:1000;
+    opacity:0;
+    pointer-events:none;
+    transition: opacity 0.3s ease;
+  }
+  #detailModal.active {
+    display: flex;
+    opacity:1;
+    pointer-events:auto;
+  }
+  #detailModalContent {
+    background:#0a0f24;
+    border:2px solid #00eaff;
+    border-radius:15px;
+    padding:20px;
+    max-width:500px;
+    width:90%;
+    max-height:80%;
+    overflow-y:auto;
+    color:#00eaff;
+    position:relative;
+    transform: scale(0.7);
+    transition: transform 0.3s ease;
+  }
+  #detailModal.active #detailModalContent {
+    transform: scale(1);
+  }
+  #closeModal {
+    position:absolute;
+    top:10px;
+    right:15px;
+    font-size:25px;
+    font-weight:bold;
+    cursor:pointer;
+  }
+
   @media(max-width: 768px) {
     .main-wrapper {
       flex-direction: column;
@@ -111,9 +156,7 @@
   <p>𝐊𝐚𝐥𝐚𝐮 𝐦𝐞𝐧𝐚𝐧𝐠 𝐤𝐚𝐭𝐚𝐤𝐚𝐧 𝐦𝐞𝐧𝐚𝐧𝐠. 𝐊𝐚𝐥𝐚𝐮 𝐤𝐚𝐥𝐚𝐡 𝐤𝐚𝐭𝐚𝐤𝐚𝐧 𝐤𝐚𝐥𝐚𝐡 𝐃𝐎𝐍𝐓𝐒 𝐅𝐀𝐋𝐒𝐄 𝐌𝐎𝐃𝐄𝐒𝐓𝐘.</p>
 </div>
 
-<!-- MAIN AREA (LANGSUNG TAMPIL, TANPA LOGIN) -->
 <div class="main-wrapper" id="mainContainer">
-
   <div class="container">
 
     <label>𝐍𝐀𝐌𝐀</label>
@@ -138,19 +181,19 @@
 
     <button onclick="tambahData()">Tambah</button>
     <button style="background:red;color:white" onclick="resetAll()">RESET ALL</button>
-  <!-- RANGKUMAN DIATAS TABEL -->
-  <div class="summary" id="summaryList"></div>
 
-  <table id="tabelData">
-    <thead>
-      <tr>
-        <th>Nama</th>
-        <th>Status</th>
-        <th>Jumlah Bet</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <div class="summary" id="summaryList"></div>
+
+    <table id="tabelData">
+      <thead>
+        <tr>
+          <th>Nama</th>
+          <th>Status</th>
+          <th>Jumlah Bet</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
   </div>
 
   <div class="side-card">
@@ -159,7 +202,15 @@
       0
     </p>
   </div>
+</div>
 
+<!-- MODAL -->
+<div id="detailModal">
+  <div id="detailModalContent">
+    <span id="closeModal">&times;</span>
+    <h3 id="modalTitle"></h3>
+    <div id="modalContent"></div>
+  </div>
 </div>
 
 <!-- FIREBASE -->
@@ -179,7 +230,6 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-
 let dataList = [];
 
 // READ DATABASE
@@ -239,15 +289,53 @@ function updateSummary() {
   Object.keys(sum).forEach(n => {
     const bersih = sum[n].win - sum[n].lose;
     summaryList.innerHTML += `
-      <p><b>${n}</b><br>
-      Win: ${sum[n].win.toLocaleString()}<br>
-      Lose: ${sum[n].lose.toLocaleString()}<br>
-      <b>Total Bersih: ${bersih.toLocaleString()}</b>
+      <p>
+        <a href="#" onclick="showDetailModal('${n}'); return false;" style="color:#00eaff;text-decoration:underline;">
+          <b>${n}</b>
+        </a><br>
+        Win: ${sum[n].win.toLocaleString()}<br>
+        Lose: ${sum[n].lose.toLocaleString()}<br>
+        <b>Total Bersih: ${bersih.toLocaleString()}</b>
       </p>`;
   });
 }
 
-// TOTAL MATCH (WIN ONLY)
+// MODAL FUNCTION (Ringkas)
+function showDetailModal(nama) {
+  const data = dataList.filter(d => d.nama === nama);
+  const modal = document.getElementById('detailModal');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalContent = document.getElementById('modalContent');
+
+  // Hitung total win dan lose
+  let totalWin = 0;
+  let totalLose = 0;
+  data.forEach(d => {
+    if (d.status === "win") totalWin += d.bet;
+    else totalLose += d.bet;
+  });
+
+  modalTitle.innerText = `Detail ${nama}`;
+  modalContent.innerHTML = `
+    <p><b>Total Win:</b> ${totalWin.toLocaleString()}</p>
+    <p><b>Total Lose:</b> ${totalLose.toLocaleString()}</p>
+  `;
+
+  modal.classList.add('active');
+}
+
+// CLOSE MODAL
+document.getElementById('closeModal').onclick = function() {
+  document.getElementById('detailModal').classList.remove('active');
+}
+window.onclick = function(event) {
+  const modal = document.getElementById('detailModal');
+  if (event.target == modal) {
+    modal.classList.remove('active');
+  }
+}
+
+// TOTAL MATCH
 function updateMatchCount() {
   let total = 0;
   dataList.forEach(d => {
