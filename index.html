@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>𝐏𝐄𝐁𝐄𝐋𝐈𝐀𝐑 𝐓𝐀𝐍𝐆𝐆𝐔𝐇 𝐋𝐗𝐆𝐑𝐎𝐔𝐏</title>
+
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -17,17 +18,42 @@
     color: #00eaff;
     text-shadow: 0 0 10px #00eaff;
   }
-  .container, .login-container {
-    max-width: 600px;
-    margin: auto;
+  .scrolling-text {
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .scrolling-text p {
+    display: inline-block;
+    animation: scroll-left 10s linear infinite;
+    font-size: 20px;
+    color: #00eaff;
+  }
+  @keyframes scroll-left {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  .main-wrapper {
+    display: flex;
+    gap: 20px;
+  }
+
+  .container {
+    flex: 3;
     background: rgba(255,255,255,0.05);
     padding: 20px;
     border-radius: 15px;
     box-shadow: 0 0 15px #00eaff;
   }
-  label {
-    font-size: 14px;
+  .side-card {
+    flex: 1;
+    background: rgba(0, 234, 255, 0.1);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 10px #00eaff;
+    height: fit-content;
   }
+
   input, select {
     width: 100%;
     padding: 10px;
@@ -37,6 +63,7 @@
     background: #111827;
     color: #00eaff;
   }
+
   button {
     width: 100%;
     padding: 12px;
@@ -46,13 +73,9 @@
     color: #000;
     font-weight: bold;
     cursor: pointer;
-    box-shadow: 0 0 10px #00eaff;
     margin-bottom: 10px;
   }
-  button.logout {
-    background: red;
-    color: white;
-  }
+
   table {
     width: 100%;
     margin-top: 20px;
@@ -65,29 +88,19 @@
     padding: 10px;
     text-align: center;
   }
+
   .summary {
     margin-top: 30px;
     padding: 15px;
     border: 1px solid #00eaff;
     border-radius: 10px;
   }
-  .scrolling-text {
-    width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
+
+  @media(max-width: 768px) {
+    .main-wrapper {
+      flex-direction: column;
+    }
   }
-  .scrolling-text p {
-    display: inline-block;
-    animation: scroll-left 10s linear infinite;
-    font-size: 20px;
-    color: #00eaff;
-    margin: 0;
-  }
-  @keyframes scroll-left {
-    0% { transform: translateX(100%); }
-    100% { transform: translateX(-100%); }
-  }
-  .hidden { display: none; }
 </style>
 </head>
 <body>
@@ -98,62 +111,60 @@
   <p>𝐊𝐚𝐥𝐚𝐮 𝐦𝐞𝐧𝐚𝐧𝐠 𝐤𝐚𝐭𝐚𝐤𝐚𝐧 𝐦𝐞𝐧𝐚𝐧𝐠. 𝐊𝐚𝐥𝐚𝐮 𝐤𝐚𝐥𝐚𝐡 𝐤𝐚𝐭𝐚𝐤𝐚𝐧 𝐤𝐚𝐥𝐚𝐡 𝐃𝐎𝐍𝐓𝐒 𝐅𝐀𝐋𝐒𝐄 𝐌𝐎𝐃𝐄𝐒𝐓𝐘.</p>
 </div>
 
-<!-- LOGIN FORM -->
-<div class="login-container" id="loginForm">
-  <h3>Login</h3>
-  <label>Email</label>
-  <input type="email" id="emailInput" placeholder="Masukkan email" />
-  <label>Password</label>
-  <input type="password" id="passwordInput" placeholder="Masukkan password" />
-  <button onclick="login()">Login</button>
-  <button onclick="register()">Register</button>
+<!-- MAIN AREA (LANGSUNG TAMPIL, TANPA LOGIN) -->
+<div class="main-wrapper" id="mainContainer">
+
+  <div class="container">
+
+    <label>𝐍𝐀𝐌𝐀</label>
+    <input type="text" id="namaInput">
+
+    <label>𝐖𝐈𝐍/𝐋𝐎𝐒𝐄</label>
+    <select id="statusInput">
+      <option value="win">WIN</option>
+      <option value="lose">LOSE</option>
+    </select>
+
+    <label>𝐉𝐔𝐌𝐋𝐀𝐇 𝐁𝐄𝐓</label>
+    <select id="betInput">
+      <option value="2000">2.000</option>
+      <option value="3000">3.000</option>
+      <option value="5000">5.000</option>
+      <option value="10000">10.000</option>
+    </select>
+
+    <label>𝐉𝐔𝐌𝐋𝐀𝐇 𝐏𝐄𝐌𝐀𝐈𝐍</label>
+    <input type="number" id="playerInput" min="1" value="1">
+
+    <button onclick="tambahData()">Tambah</button>
+    <button style="background:red;color:white" onclick="resetAll()">RESET ALL</button>
+
+    <table id="tabelData">
+      <thead>
+        <tr>
+          <th>Nama</th>
+          <th>Status</th>
+          <th>Jumlah Bet</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="summary" id="summaryList"></div>
+  </div>
+
+  <div class="side-card">
+    <h3 style="color:#00eaff;text-align:center">TOTAL PERTANDINGAN</h3>
+    <p id="totalMatchCount" style="font-size:40px;text-align:center;font-weight:bold;color:#00eaff;">
+      0
+    </p>
+  </div>
+
 </div>
 
-<!-- MAIN CONTAINER -->
-<div class="container hidden" id="mainContainer">
-  <button class="logout" onclick="logout()">Logout</button>
-
-  <label>𝐍𝐀𝐌𝐀</label>
-  <input type="text" id="namaInput" placeholder="Masukkan nama" />
-
-  <label>𝐖𝐈𝐍/𝐋𝐎𝐒𝐄</label>
-  <select id="statusInput">
-    <option value="win">𝐖𝐈𝐍</option>
-    <option value="lose">𝐋𝐎𝐒𝐄</option>
-  </select>
-
-  <label>𝐉𝐔𝐌𝐋𝐀𝐇 𝐁𝐄𝐓</label>
-  <select id="betInput">
-    <option value="2000">2.000</option>
-    <option value="3000">3.000</option>
-    <option value="5000">5.000</option>
-    <option value="10000">10.000</option>
-  </select>
-
-  <label>𝐉𝐔𝐌𝐋𝐀𝐇 𝐏𝐄𝐌𝐀𝐈𝐍</label>
-  <input type="number" id="playerInput" placeholder="Masukkan jumlah pemain" min="1" value="1" />
-
-  <button onclick="tambahData()">𝐓𝐚𝐦𝐛𝐚𝐡𝐤𝐚𝐧</button>
-  <button style="background:red;color:white" onclick="resetAll()">𝐑𝐄𝐒𝐄𝐓 𝐀𝐋𝐋</button>
-
-  <table id="tabelData">
-    <thead>
-      <tr>
-        <th>𝐍𝐀𝐌𝐀</th>
-        <th>𝐒𝐓𝐀𝐓𝐔𝐒</th>
-        <th>𝐉𝐔𝐌𝐋𝐀𝐇 𝐁𝐄𝐓</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-  <div class="summary" id="summaryList"></div>
-</div>
-
-<!-- Firebase -->
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
 
 <script>
 const firebaseConfig = {
@@ -163,118 +174,86 @@ const firebaseConfig = {
   projectId: "pebeliartangguh",
   storageBucket: "pebeliartangguh.firebasestorage.app",
   messagingSenderId: "909335670060",
-  appId: "1:909335670060:web:739862acc9534f356ad089",
-  measurementId: "G-YCZYWHE7NS"
+  appId: "1:909335670060:web:739862acc9534f356ad089"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-const auth = firebase.auth();
 
 let dataList = [];
 
-// ================= LOGIN =================
-function login() {
-  const email = document.getElementById('emailInput').value;
-  const password = document.getElementById('passwordInput').value;
-  if (!email || !password) return alert("Email dan password harus diisi!");
-
-  auth.signInWithEmailAndPassword(email, password)
-    .then(() => {
-      document.getElementById('loginForm').classList.add('hidden');
-      document.getElementById('mainContainer').classList.remove('hidden');
-    })
-    .catch(err => alert("Login gagal: " + err.message));
-}
-
-function register() {
-  const email = document.getElementById('emailInput').value;
-  const password = document.getElementById('passwordInput').value;
-  if (!email || !password) return alert("Email dan password harus diisi!");
-
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(() => alert("Registrasi berhasil, silakan login"))
-    .catch(err => alert("Registrasi gagal: " + err.message));
-}
-
-function logout() {
-  auth.signOut().then(() => {
-    document.getElementById('loginForm').classList.remove('hidden');
-    document.getElementById('mainContainer').classList.add('hidden');
-  });
-}
-
-// Auto-check login status
-auth.onAuthStateChanged(user => {
-  if (user) {
-    document.getElementById('loginForm').classList.add('hidden');
-    document.getElementById('mainContainer').classList.remove('hidden');
-  } else {
-    document.getElementById('loginForm').classList.remove('hidden');
-    document.getElementById('mainContainer').classList.add('hidden');
-  }
-});
-
-// ================= DATA =================
-db.ref("betData").on("value", snapshot => {
-  dataList = snapshot.val() || [];
+// READ DATABASE
+db.ref("betData").on("value", snap => {
+  dataList = snap.val() || [];
   updateTable();
   updateSummary();
+  updateMatchCount();
 });
 
+// ADD DATA
 function tambahData() {
-  const nama = document.getElementById('namaInput').value.trim();
-  const status = document.getElementById('statusInput').value;
-  const bet = parseInt(document.getElementById('betInput').value);
-  const player = parseInt(document.getElementById('playerInput').value);
+  const nama = namaInput.value.trim();
+  const status = statusInput.value;
+  const bet = parseInt(betInput.value);
+  const player = parseInt(playerInput.value);
 
   if (!nama) return alert("Nama harus diisi!");
-  if (!player || player < 1) return alert("Jumlah pemain minimal 1!");
+  if (player < 1) return alert("Minimal 1 pemain");
 
-  let totalBet = bet;
-  if (status === 'win') {
-      totalBet = bet * player;
-  }
+  let totalBet = status === "win" ? bet * player : bet;
 
   dataList.push({ nama, status, bet: totalBet });
 
   db.ref("betData").set(dataList);
 }
 
+// RESET ALL
 function resetAll() {
-  if (!confirm("Hapus semua data?")) return;
-  db.ref("betData").set([]);
+  if (confirm("Hapus semua data?"))
+    db.ref("betData").set([]);
 }
 
+// UPDATE TABLE
 function updateTable() {
-  const tbody = document.querySelector('#tabelData tbody');
-  tbody.innerHTML = '';
+  const tbody = document.querySelector("#tabelData tbody");
+  tbody.innerHTML = "";
   dataList.forEach(d => {
-    tbody.innerHTML += `<tr>
-      <td>${d.nama}</td>
-      <td>${d.status}</td>
-      <td>${d.bet.toLocaleString()}</td>
-    </tr>`;
+    tbody.innerHTML += `
+      <tr>
+        <td>${d.nama}</td>
+        <td>${d.status}</td>
+        <td>${d.bet.toLocaleString()}</td>
+      </tr>`;
   });
 }
 
+// SUMMARY
 function updateSummary() {
-  const summary = {};
+  const sum = {};
   dataList.forEach(d => {
-    if (!summary[d.nama]) summary[d.nama] = { win: 0, lose: 0 };
-    summary[d.nama][d.status] += d.bet;
+    if (!sum[d.nama]) sum[d.nama] = { win: 0, lose: 0 };
+    sum[d.nama][d.status] += d.bet;
   });
 
-  const box = document.getElementById('summaryList');
-  box.innerHTML = '<h3>Rangkuman</h3>';
-
-  Object.keys(summary).forEach(n => {
-    const totalBersih = summary[n].win - summary[n].lose;
-    box.innerHTML += `<p><strong>${n}</strong><br>
-      Win: ${summary[n].win.toLocaleString()}<br>
-      Lose: ${summary[n].lose.toLocaleString()}<br>
-      <strong>Total Bersih: ${totalBersih.toLocaleString()}</strong></p>`;
+  summaryList.innerHTML = "<h3>Rangkuman</h3>";
+  Object.keys(sum).forEach(n => {
+    const bersih = sum[n].win - sum[n].lose;
+    summaryList.innerHTML += `
+      <p><b>${n}</b><br>
+      Win: ${sum[n].win.toLocaleString()}<br>
+      Lose: ${sum[n].lose.toLocaleString()}<br>
+      <b>Total Bersih: ${bersih.toLocaleString()}</b>
+      </p>`;
   });
+}
+
+// TOTAL MATCH (WIN ONLY)
+function updateMatchCount() {
+  let total = 0;
+  dataList.forEach(d => {
+    if (d.status === "win") total += 1;
+  });
+  document.getElementById("totalMatchCount").innerText = total;
 }
 </script>
 
